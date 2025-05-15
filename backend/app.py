@@ -1,7 +1,8 @@
-from config import app, db
-from routes.expense import expense_blueprint
+from config import create_app, db
+#from routes.expense import expense_blueprint
 
-app.register_blueprint(expense_blueprint, url_prefix="/api")
+app = create_app()
+#app.register_blueprint(expense_blueprint, url_prefix="/api")
 
 if __name__ == "__main__":
     with app.app_context():

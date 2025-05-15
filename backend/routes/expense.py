@@ -15,13 +15,8 @@ def get_expenses():
 @expense_blueprint.route("/create_expense", methods=["POST"])
 def create_expense():
     data = request.get_json()
-
-    try:
-        date_str = data.get("Date")
-        date = datetime.strptime(date_str, "%Y-%m-%d").date()
-    except ValueError:
-        return {"error": "Invalid date format. Use YYYY-MM-DD."}, 400
     
+    date = data.get("Date")
     category = data.get("Category")
     amount = data.get("Amount")
     description = data.get("Description")
@@ -50,6 +45,11 @@ def create_expense():
             400,
         )
 
+    try:
+        date = datetime.strptime(date, "%Y-%m-%d").date()
+    except ValueError:
+        return {"error": "Invalid date format. Use YYYY-MM-DD."}, 400
+
     new_expense = Expense(date=date, category=category, amount=amount, description=description)
     try:
         db.session.add(new_expense)
@@ -60,12 +60,12 @@ def create_expense():
     return jsonify({"message": "Expense created"}), 201
 
 
-@expense_blueprint.route("/update_expense/<int:user_id>", methods=["PATCH"])
-def update_expense(user_id):
-    expense = Expense.query.get(user_id)
+@expense_blueprint.route("/update_expense/<int:expense_id>", methods=["PATCH"])
+def update_expense(expense_id):
+    expense = Expense.query.get(expense_id)
 
     if not expense:
-        return jsonify({"message": "User not found"}), 404
+        return jsonify({"message": "Expense not found"}), 404
 
     data = request.json
 
@@ -78,9 +78,9 @@ def update_expense(user_id):
 
     return jsonify({"message": f"Expense {expense.id} updated"}), 200
 
-@expense_blueprint.route("/delete_expense/<int:user_id>", methods=["DELETE"])
-def delete_expense(user_id):
-    expense = Expense.query.get(user_id)
+@expense_blueprint.route("/delete_expense/<int:expense_id>", methods=["DELETE"])
+def delete_expense(expense_id):
+    expense = Expense.query.get(expense_id)
 
     if not expense:
         return jsonify({"message": "Expense not found"}), 404
