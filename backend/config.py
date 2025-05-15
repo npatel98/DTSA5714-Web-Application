@@ -21,6 +21,7 @@ def create_app():
     migrate.init_app(app, db, directory=os.path.join(basedir, 'database'))
 
     from routes.expense import expense_blueprint
-    app.register_blueprint(expense_blueprint, url_prefix="/api")
+    app.register_blueprint(expense_blueprint, url_prefix="/expense")
+    #TODO: implement category blueprint
 
     return app

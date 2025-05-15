@@ -22,7 +22,7 @@ class ExpenseTestCase(unittest.TestCase):
 
     def test_get_expenses(self):
         """Test the GET /expenses endpoint."""
-        response = self.client.get("/api/expenses")
+        response = self.client.get("/expense/expenses")
         self.assertEqual(response.status_code, 200)
         self.assertIn("expenses", response.json)
 
@@ -35,7 +35,7 @@ class ExpenseTestCase(unittest.TestCase):
             "Description": "Lunch"
         }
         response = self.client.post(
-            "/api/create_expense", data=json.dumps(payload), content_type="application/json"
+            "/expense/create_expense", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 201)
         self.assertIn("Expense created", response.json["message"])
@@ -49,7 +49,7 @@ class ExpenseTestCase(unittest.TestCase):
             "Description": "Lunch"
         }
         response = self.client.post(
-            "/api/create_expense", data=json.dumps(payload), content_type="application/json"
+            "/expense/create_expense", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn("Invalid date format", response.json["error"])
@@ -62,7 +62,7 @@ class ExpenseTestCase(unittest.TestCase):
             "Description": "Lunch"
         }
         response = self.client.post(
-            "/api/create_expense", data=json.dumps(payload), content_type="application/json"
+            "/expense/create_expense", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn("You must include a date", response.json["message"])
@@ -75,7 +75,7 @@ class ExpenseTestCase(unittest.TestCase):
             "Description": "Lunch"
         }
         response = self.client.post(
-            "/api/create_expense", data=json.dumps(payload), content_type="application/json"
+            "/expense/create_expense", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn("You must include a category", response.json["message"])
@@ -88,7 +88,7 @@ class ExpenseTestCase(unittest.TestCase):
             "Description": "Lunch"
         }
         response = self.client.post(
-            "/api/create_expense", data=json.dumps(payload), content_type="application/json"
+            "/expense/create_expense", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn("You must include an amount", response.json["message"])
@@ -101,7 +101,7 @@ class ExpenseTestCase(unittest.TestCase):
             "Amount": 20.5,
         }
         response = self.client.post(
-            "/api/create_expense", data=json.dumps(payload), content_type="application/json"
+            "/expense/create_expense", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn("You must include a description", response.json["message"])
@@ -118,7 +118,7 @@ class ExpenseTestCase(unittest.TestCase):
         # Update the expense
         payload = {"Category": "Restaurants"}
         response = self.client.patch(
-            f"/api/update_expense/{expense_id}", data=json.dumps(payload), content_type="application/json"
+            f"/expense/update_expense/{expense_id}", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 200)
         self.assertIn(f"Expense {expense_id} updated", response.json["message"])
@@ -135,7 +135,7 @@ class ExpenseTestCase(unittest.TestCase):
         # Update the expense
         payload = {"Category": "Restaurants"}
         response = self.client.patch(
-            f"/api/update_expense/{expense_id + 1}", data=json.dumps(payload), content_type="application/json"
+            f"/expense/update_expense/{expense_id + 1}", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 404)
         self.assertIn(f"Expense not found", response.json["message"])
@@ -150,7 +150,7 @@ class ExpenseTestCase(unittest.TestCase):
             expense_id = expense.id
 
         # Delete the expense
-        response = self.client.delete(f"/api/delete_expense/{expense_id}")
+        response = self.client.delete(f"/expense/delete_expense/{expense_id}")
         self.assertEqual(response.status_code, 200)
         self.assertIn(f"Expense {expense_id} deleted", response.json["message"])
 
@@ -164,7 +164,7 @@ class ExpenseTestCase(unittest.TestCase):
             expense_id = expense.id
 
         # Delete the expense
-        response = self.client.delete(f"/api/delete_expense/{expense_id + 1}")
+        response = self.client.delete(f"/expense/delete_expense/{expense_id + 1}")
         self.assertEqual(response.status_code, 404)
         self.assertIn(f"Expense not found", response.json["message"])
 
