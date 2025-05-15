@@ -50,7 +50,7 @@ def create_expense():
     except ValueError:
         return {"error": "Invalid date format. Use YYYY-MM-DD."}, 400
 
-    new_expense = Expense(date=date, category=category, amount=amount, description=description)
+    new_expense = Expense(date=date, category_id=category, amount=amount, description=description)
     try:
         db.session.add(new_expense)
         db.session.commit()

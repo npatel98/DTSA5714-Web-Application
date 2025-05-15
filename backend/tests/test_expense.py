@@ -1,7 +1,7 @@
 import unittest
 from flask import json
 from config import create_app, db
-from models import Expense
+from models import Expense, Category
 import datetime
 
 class ExpenseTestCase(unittest.TestCase):
@@ -28,9 +28,15 @@ class ExpenseTestCase(unittest.TestCase):
 
     def test_create_expense(self):
         """Test the POST /create_expense endpoint."""
+        with self.app.app_context():
+            category = Category(category="Restaurants")
+            db.session.add(category)
+            db.session.commit()
+            category_id = category.id
+
         payload = {
             "Date": "2025-05-14",
-            "Category": "Restaurants",
+            "Category": category_id,
             "Amount": 20.5,
             "Description": "Lunch"
         }
@@ -107,27 +113,41 @@ class ExpenseTestCase(unittest.TestCase):
         self.assertIn("You must include a description", response.json["message"])
 
     def test_update_expense(self):
-        """Test the PATCH /update_expense/<int:user_id> endpoint."""
+        """Test the PATCH /update_expense/<int:expense_id> endpoint."""
         # First, create an expense
         with self.app.app_context():
-            expense = Expense(date=datetime.date(2025, 5, 14), category="Food", amount=20.5, description="Lunch")
+            category = Category(category="Restaurants")
+            db.session.add(category)
+            db.session.commit()
+            category_id = category.id
+
+            expense = Expense(date=datetime.date(2025, 5, 14), category_id=category_id, amount=20.5, description="Lunch")
             db.session.add(expense)
             db.session.commit()
             expense_id = expense.id
 
         # Update the expense
-        payload = {"Category": "Restaurants"}
+        payload = {"Description": "Dinner"}
         response = self.client.patch(
             f"/expense/update_expense/{expense_id}", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 200)
         self.assertIn(f"Expense {expense_id} updated", response.json["message"])
 
+        #TODO: add test for when date is changed
+        #TODO: add test for when category is changed
+        #TODO: add test for when amount is changed
+
     def test_update_expense_invalid_id(self):
         """Test the PATCH /update_expense/<int:expense_id> endpoint with an invalid expense_id."""
         # First, create an expense
         with self.app.app_context():
-            expense = Expense(date=datetime.date(2025, 5, 14), category="Food", amount=20.5, description="Lunch")
+            category = Category(category="Restaurants")
+            db.session.add(category)
+            db.session.commit()
+            category_id = category.id
+
+            expense = Expense(date=datetime.date(2025, 5, 14), category_id=category_id, amount=20.5, description="Lunch")
             db.session.add(expense)
             db.session.commit()
             expense_id = expense.id
@@ -144,7 +164,12 @@ class ExpenseTestCase(unittest.TestCase):
         """Test the DELETE /delete_expense/<int:expense_id> endpoint."""
         # First, create an expense
         with self.app.app_context():
-            expense = Expense(date=datetime.date(2025, 5, 14), category="Food", amount=20.5, description="Lunch")
+            category = Category(category="Restaurants")
+            db.session.add(category)
+            db.session.commit()
+            category_id = category.id
+
+            expense = Expense(date=datetime.date(2025, 5, 14), category_id=category_id, amount=20.5, description="Lunch")
             db.session.add(expense)
             db.session.commit()
             expense_id = expense.id
@@ -158,7 +183,12 @@ class ExpenseTestCase(unittest.TestCase):
         """Test the DELETE /delete_expense/<int:expense_id> endpoint with invalid expense_id."""
         # First, create an expense
         with self.app.app_context():
-            expense = Expense(date=datetime.date(2025, 5, 14), category="Food", amount=20.5, description="Lunch")
+            category = Category(category="Restaurants")
+            db.session.add(category)
+            db.session.commit()
+            category_id = category.id
+
+            expense = Expense(date=datetime.date(2025, 5, 14), category_id=category_id, amount=20.5, description="Lunch")
             db.session.add(expense)
             db.session.commit()
             expense_id = expense.id
