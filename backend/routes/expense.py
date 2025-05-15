@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from models import Expense
 from config import db
+from datetime import datetime
 
 expense_blueprint = Blueprint("expense", __name__)
 
@@ -13,10 +14,17 @@ def get_expenses():
 
 @expense_blueprint.route("/create_expense", methods=["POST"])
 def create_expense():
-    date = request.json.get("Date")
-    category = request.json.get("Category")
-    amount = request.json.get("Amount")
-    description = request.json.get("Description")
+    data = request.get_json()
+
+    try:
+        date_str = data.get("Date")
+        date = datetime.strptime(date_str, "%Y-%m-%d").date()
+    except ValueError:
+        return {"error": "Invalid date format. Use YYYY-MM-DD."}, 400
+    
+    category = data.get("Category")
+    amount = data.get("Amount")
+    description = data.get("Description")
 
     if not date:
         return (
