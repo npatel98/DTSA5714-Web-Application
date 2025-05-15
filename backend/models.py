@@ -20,7 +20,7 @@ class Expense(db.Model):
     def to_json(self):
         return {
             "Date": self.date,
-            "Category": self.category_id.category,
+            "Category": self.category.category,
             "Amount": float(self.amount),
             "Description": self.description
         }

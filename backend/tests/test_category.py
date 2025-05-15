@@ -2,7 +2,6 @@ import unittest
 from flask import json
 from config import create_app, db
 from models import Category
-import datetime
 
 class ExpenseTestCase(unittest.TestCase):
     def setUp(self):
@@ -20,11 +19,22 @@ class ExpenseTestCase(unittest.TestCase):
             db.session.remove()
             db.drop_all()
 
-    def test_get_categories(self):
-        """Test the GET /categories endpoint."""
+    def test_get_categories_empty(self):
+        """Test the GET /categories endpoint on an empty table."""
         response = self.client.get("/category/categories")
         self.assertEqual(response.status_code, 200)
         self.assertIn("expenses", response.json)
+
+    def test_get_category_populated(self):
+        """Test the GET /categories endpoint on a populated table."""
+        with self.app.app_context():
+            category1 = Category(category="Restaurants")
+            category2 = Category(category="Groceries")
+            category3 = Category(category="Shopping")
+            db.session.add(category1)
+            db.session.add(category2)
+            db.session.add(category3)
+            db.session.commit()
 
     def test_create_category(self):
         """Test the POST /create_category endpoint."""

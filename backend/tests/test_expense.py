@@ -20,8 +20,28 @@ class ExpenseTestCase(unittest.TestCase):
             db.session.remove()
             db.drop_all()
 
-    def test_get_expenses(self):
-        """Test the GET /expenses endpoint."""
+    def test_get_expenses_empty(self):
+        """Test the GET /expenses endpoint on an empty table."""
+        response = self.client.get("/expense/expenses")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("expenses", response.json)
+
+    def test_get_expenses_populated(self):
+        """Test the GET /expenses endpoint on a populated table."""
+        with self.app.app_context():
+            category = Category(category="Restaurants")
+            db.session.add(category)
+            db.session.commit()
+            category_id = category.id
+
+            expense1 = Expense(date=datetime.date(2022, 3, 24), category_id=category_id, amount=15.3, description="Breakfast")
+            expense2 = Expense(date=datetime.date(2023, 5, 14), category_id=category_id, amount=20.5, description="Lunch")
+            expense3 = Expense(date=datetime.date(2025, 1, 12), category_id=category_id, amount=60.54, description="Dinner")
+            db.session.add(expense1)
+            db.session.add(expense2)
+            db.session.add(expense3)
+            db.session.commit()
+
         response = self.client.get("/expense/expenses")
         self.assertEqual(response.status_code, 200)
         self.assertIn("expenses", response.json)
@@ -112,9 +132,8 @@ class ExpenseTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("You must include a description", response.json["message"])
 
-    def test_update_expense(self):
-        """Test the PATCH /update_expense/<int:expense_id> endpoint."""
-        # First, create an expense
+    def test_update_expense_date(self):
+        """Test the PATCH /update_expense/<int:expense_id> endpoint to change date."""
         with self.app.app_context():
             category = Category(category="Restaurants")
             db.session.add(category)
@@ -126,7 +145,71 @@ class ExpenseTestCase(unittest.TestCase):
             db.session.commit()
             expense_id = expense.id
 
-        # Update the expense
+        payload = {"Date": "2025-04-03"}
+        response = self.client.patch(
+            f"/expense/update_expense/{expense_id}", data=json.dumps(payload), content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(f"Expense {expense_id} updated", response.json["message"])
+
+    def test_update_expense_category(self):
+        """Test the PATCH /update_expense/<int:expense_id> endpoint to change category."""
+        with self.app.app_context():
+            old_category = Category(category="Dining")
+            db.session.add(old_category)
+            db.session.commit()
+            old_category_id = old_category.id
+
+            new_category = Category(category="Restaurants")
+            db.session.add(new_category)
+            db.session.commit()
+            new_category_id = new_category.id
+
+            expense = Expense(date=datetime.date(2025, 5, 14), category_id=old_category_id, amount=20.5, description="Lunch")
+            db.session.add(expense)
+            db.session.commit()
+            expense_id = expense.id
+
+        payload = {"categoryId": new_category_id}
+        response = self.client.patch(
+            f"/expense/update_expense/{expense_id}", data=json.dumps(payload), content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(f"Expense {expense_id} updated", response.json["message"])
+
+    def test_update_expense_amount(self):
+        """Test the PATCH /update_expense/<int:expense_id> endpoint to change amount."""
+        with self.app.app_context():
+            category = Category(category="Restaurants")
+            db.session.add(category)
+            db.session.commit()
+            category_id = category.id
+
+            expense = Expense(date=datetime.date(2025, 5, 14), category_id=category_id, amount=20.5, description="Lunch")
+            db.session.add(expense)
+            db.session.commit()
+            expense_id = expense.id
+            
+        payload = {"Amount": 100.82}
+        response = self.client.patch(
+            f"/expense/update_expense/{expense_id}", data=json.dumps(payload), content_type="application/json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(f"Expense {expense_id} updated", response.json["message"])
+    
+    def test_update_expense_description(self):
+        """Test the PATCH /update_expense/<int:expense_id> endpoint to change description."""
+        with self.app.app_context():
+            category = Category(category="Restaurants")
+            db.session.add(category)
+            db.session.commit()
+            category_id = category.id
+
+            expense = Expense(date=datetime.date(2025, 5, 14), category_id=category_id, amount=20.5, description="Lunch")
+            db.session.add(expense)
+            db.session.commit()
+            expense_id = expense.id
+
         payload = {"Description": "Dinner"}
         response = self.client.patch(
             f"/expense/update_expense/{expense_id}", data=json.dumps(payload), content_type="application/json"
@@ -134,13 +217,8 @@ class ExpenseTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(f"Expense {expense_id} updated", response.json["message"])
 
-        #TODO: add test for when date is changed
-        #TODO: add test for when category is changed
-        #TODO: add test for when amount is changed
-
     def test_update_expense_invalid_id(self):
         """Test the PATCH /update_expense/<int:expense_id> endpoint with an invalid expense_id."""
-        # First, create an expense
         with self.app.app_context():
             category = Category(category="Restaurants")
             db.session.add(category)
@@ -152,7 +230,6 @@ class ExpenseTestCase(unittest.TestCase):
             db.session.commit()
             expense_id = expense.id
 
-        # Update the expense
         payload = {"Category": "Restaurants"}
         response = self.client.patch(
             f"/expense/update_expense/{expense_id + 1}", data=json.dumps(payload), content_type="application/json"
@@ -162,7 +239,6 @@ class ExpenseTestCase(unittest.TestCase):
 
     def test_delete_expense(self):
         """Test the DELETE /delete_expense/<int:expense_id> endpoint."""
-        # First, create an expense
         with self.app.app_context():
             category = Category(category="Restaurants")
             db.session.add(category)
@@ -174,14 +250,12 @@ class ExpenseTestCase(unittest.TestCase):
             db.session.commit()
             expense_id = expense.id
 
-        # Delete the expense
         response = self.client.delete(f"/expense/delete_expense/{expense_id}")
         self.assertEqual(response.status_code, 200)
         self.assertIn(f"Expense {expense_id} deleted", response.json["message"])
 
     def test_delete_expense_invalid_id(self):
         """Test the DELETE /delete_expense/<int:expense_id> endpoint with invalid expense_id."""
-        # First, create an expense
         with self.app.app_context():
             category = Category(category="Restaurants")
             db.session.add(category)
@@ -193,7 +267,6 @@ class ExpenseTestCase(unittest.TestCase):
             db.session.commit()
             expense_id = expense.id
 
-        # Delete the expense
         response = self.client.delete(f"/expense/delete_expense/{expense_id + 1}")
         self.assertEqual(response.status_code, 404)
         self.assertIn(f"Expense not found", response.json["message"])

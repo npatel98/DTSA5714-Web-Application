@@ -69,7 +69,11 @@ def update_expense(expense_id):
 
     data = request.json
 
-    expense.date = data.get("Date", expense.date)
+    date = data.get("Date", expense.date.strftime("%Y-%m-%d"))
+    try:
+        expense.date = datetime.strptime(date, "%Y-%m-%d").date()
+    except ValueError:
+        return {"error": "Invalid date format. Use YYYY-MM-DD."}, 400
     expense.category = data.get("Category", expense.category)
     expense.amount = data.get("Amount", expense.amount)
     expense.description = data.get("Description", expense.description)
