@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from models import Category
 from config import db
-from datetime import datetime
 
 category_blueprint = Blueprint("category", __name__)
 

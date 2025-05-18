@@ -6,8 +6,7 @@ from models import Category
 class ExpenseTestCase(unittest.TestCase):
     def setUp(self):
         """Set up test client and initialize the database."""
-        self.app = create_app()
-        self.app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///:memory:"
+        self.app = create_app('testing')
         self.app.config["TESTING"] = True
         self.client = self.app.test_client()
         with self.app.app_context():
