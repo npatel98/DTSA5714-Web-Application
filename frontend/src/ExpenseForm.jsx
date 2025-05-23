@@ -34,7 +34,6 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
       const categoryId = Object.entries(categories).find(
         ([, categoryObj]) => categoryObj.Category === existingExpense.Category
       )?.[0];
-      console.log(Object.entries(categories));
       if (categoryId) {
         setCategory(categoryId);
       }
@@ -60,7 +59,6 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
       },
       body: JSON.stringify(data),
     };
-    console.log(JSON.stringify(data));
     const response = await fetch(url, options);
     if (response.status !== 201 && response.status !== 200) {
       const data = await response.json();

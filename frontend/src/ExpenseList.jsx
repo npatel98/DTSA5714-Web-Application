@@ -27,7 +27,11 @@ const ExpenseList = ({ expenses, updateExpense, updateCallback }) => {
             <tr key={expense.id}>
               <td>{formatDate(expense.Date)}</td>
               <td>{expense.Category}</td>
-              <td>{expense.Amount}</td>
+              <td>
+                {expense.Amount < 0
+                  ? `$(${Math.abs(expense.Amount).toFixed(2)})`
+                  : `$${expense.Amount.toFixed(2)}`}
+              </td>
               <td>{expense.Description}</td>
               <td>
                 <button onClick={() => updateExpense(expense)}>Update</button>
