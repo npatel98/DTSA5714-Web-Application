@@ -3,15 +3,41 @@ import React from "react";
 const ExpenseList = ({ expenses, updateExpense, updateCallback }) => {
   const formatDate = (dateString) => {
     const date = new Date(dateString);
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0"); // Months are 0-based
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
     const day = String(date.getUTCDate()).padStart(2, "0");
     const year = date.getUTCFullYear();
     return `${month}-${day}-${year}`;
   };
 
+  const onDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this expense?"
+    );
+    if (!confirmDelete) {
+      return;
+    }
+
+    try {
+      const options = {
+        method: "DELETE",
+      };
+      const response = await fetch(
+        `http://127.0.0.1:5000/expense/delete_expense/${id}`,
+        options
+      );
+      if (response.status === 200) {
+        updateCallback();
+      } else {
+        console.error("Failed to delete");
+      }
+    } catch (error) {
+      alert(error);
+    }
+  };
+
   return (
     <div>
-      <h2>Expenses</h2>
+      <h2>Expense Log</h2>
       <table>
         <thead>
           <tr>
@@ -35,7 +61,7 @@ const ExpenseList = ({ expenses, updateExpense, updateCallback }) => {
               <td>{expense.Description}</td>
               <td>
                 <button onClick={() => updateExpense(expense)}>Update</button>
-                <button>Delete</button>
+                <button onClick={() => onDelete(expense.id)}>Delete</button>
               </td>
             </tr>
           ))}

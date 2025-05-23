@@ -49,6 +49,10 @@ function App() {
     fetchExpenses();
   };
 
+  const onCategoryAdded = () => {
+    closeCategoryModal();
+  };
+
   return (
     <>
       <ExpenseList
@@ -77,7 +81,7 @@ function App() {
             <span className="close" onClick={closeCategoryModal}>
               &times;
             </span>
-            <CategoryForm />
+            <CategoryForm updateCallback={onCategoryAdded} />
           </div>
         </div>
       )}

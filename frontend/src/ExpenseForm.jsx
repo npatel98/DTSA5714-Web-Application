@@ -77,6 +77,7 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
           id="date"
           value={date ? new Date(date).toISOString().split("T")[0] : date}
           onChange={(e) => setDate(e.target.value)}
+          required
         />
       </div>
       <div>
@@ -85,6 +86,7 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
           id="category"
           value={category}
           onChange={(e) => setCategory(e.target.value)}
+          required
         >
           <option value="">Select a category</option>
           {categories &&
@@ -102,6 +104,7 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
           id="amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
+          required
         />
       </div>
       <div>
@@ -111,6 +114,7 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
           id="description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
+          required
         />
       </div>
       <div>
