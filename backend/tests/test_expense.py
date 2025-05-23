@@ -231,7 +231,7 @@ class ExpenseTestCase(unittest.TestCase):
         self.assertIn(f"Expense {expense_id} updated", response.json["message"])
 
         updated_expense = Expense.query.get(expense_id)
-        self.assertEqual(updated_expense.amount, 100.82)
+        self.assertEqual(float(updated_expense.amount), 100.82)
 
     def test_update_expense_invalid_amount(self):
         pass
