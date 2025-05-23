@@ -9,7 +9,7 @@ def get_expenses():
     categories = Category.query.all()
     json_categories = list(map(lambda x: x.to_json(), categories))
 
-    return jsonify({"expenses": json_categories})
+    return jsonify({"categories": json_categories})
 
 @category_blueprint.route("/create_category", methods=["POST"])
 def create_category():

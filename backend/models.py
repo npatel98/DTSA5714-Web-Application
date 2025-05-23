@@ -7,6 +7,7 @@ class Category(db.Model):
 
     def to_json(self):
         return {
+#            "id": self.id,
             "Category": self.category
         }
     
@@ -19,6 +20,7 @@ class Expense(db.Model):
 
     def to_json(self):
         return {
+            "id": self.id,
             "Date": self.date,
             "Category": self.category.category,
             "Amount": float(self.amount),

@@ -22,7 +22,7 @@ class ExpenseTestCase(unittest.TestCase):
         """Test the GET /categories endpoint on an empty table."""
         response = self.client.get("/category/categories")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("expenses", response.json)
+        self.assertIn("categories", response.json)
 
     def test_get_category_populated(self):
         """Test the GET /categories endpoint on a populated table."""

@@ -16,10 +16,10 @@ def get_expenses():
 def create_expense():
     data = request.get_json()
     
-    date = data.get("Date")
-    category = data.get("Category")
-    amount = data.get("Amount")
-    description = data.get("Description")
+    date = data.get("date")
+    category_id = data.get("categoryId")
+    amount = data.get("amount")
+    description = data.get("description")
 
     if not date:
         return (
@@ -27,7 +27,7 @@ def create_expense():
             400,
         )
     
-    if not category:
+    if not category_id:
         return (
             jsonify({"message": "You must include a category"}),
             400,
@@ -50,7 +50,7 @@ def create_expense():
     except ValueError:
         return {"error": "Invalid date format. Use YYYY-MM-DD."}, 400
 
-    new_expense = Expense(date=date, category_id=category, amount=amount, description=description)
+    new_expense = Expense(date=date, category_id=category_id, amount=amount, description=description)
     try:
         db.session.add(new_expense)
         db.session.commit()
@@ -67,16 +67,29 @@ def update_expense(expense_id):
     if not expense:
         return jsonify({"message": "Expense not found"}), 404
 
-    data = request.json
+    data = request.get_json()
 
-    date = data.get("Date", expense.date.strftime("%Y-%m-%d"))
-    try:
-        expense.date = datetime.strptime(date, "%Y-%m-%d").date()
-    except ValueError:
-        return {"error": "Invalid date format. Use YYYY-MM-DD."}, 400
-    expense.category = data.get("Category", expense.category)
-    expense.amount = data.get("Amount", expense.amount)
-    expense.description = data.get("Description", expense.description)
+    validators = {
+        "date": lambda v: datetime.strptime(v, "%Y-%m-%d").date(),
+        "categoryId": lambda v: v if isinstance(v, int) else (_ for _ in ()).throw(TypeError),
+        "amount": lambda v: float(v),
+        "description": lambda v: v if isinstance(v, str) else (_ for _ in ()).throw(TypeError),
+    }
+
+    field_mapping = {
+        "date": "date",
+        "categoryId": "category_id",
+        "amount": "amount",
+        "description": "description",
+    }
+
+    for key, validator in validators.items():
+        if key in data:
+            try:
+                value = validator(data[key])
+                setattr(expense, field_mapping[key], value)
+            except (ValueError, TypeError):
+                return {"error": f"Invalid value for '{key}'."}, 400
 
     db.session.commit()
 
