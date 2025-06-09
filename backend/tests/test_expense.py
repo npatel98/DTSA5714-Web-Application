@@ -174,7 +174,7 @@ class ExpenseTestCase(unittest.TestCase):
             f"/expense/update_expense/{expense_id}", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 400)
-        self.assertIn("Invalid date format. Use YYYY-MM-DD.", response.json["error"])
+        self.assertIn("Invalid value for date", response.json["error"])
 
 
     def test_update_expense_category(self):

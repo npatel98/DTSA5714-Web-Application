@@ -7,34 +7,30 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
-    """Base configuration."""
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class DevelopmentConfig(Config):
-    """Development configuration."""
-    SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(basedir, 'database', 'database.db')
+    SQLALCHEMY_DATABASE_URI = os.getenv("DEV_DATABASE_URL")
 
 class TestingConfig(Config):
-    """Testing configuration."""
-    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"  # Use in-memory database for testing
-    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
 
-# class ProductionConfig(Config):
-#     """Production configuration."""
-#     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "sqlite:///" + os.path.join(basedir, 'database', 'database.db'))
+class ProductionConfig(Config):
+    SQLALCHEMY_DATABASE_URI = os.getenv("PRODUCTION_DATABASE_URL")
 
 config = {
     'development': DevelopmentConfig,
     'testing': TestingConfig,
-    # 'production': ProductionConfig
+    'production': ProductionConfig
 }
 
-# Initialize extensions without binding them to the app
 db = SQLAlchemy()
 migrate = Migrate()
 
-def create_app(config_name='development'):
-    """Factory function to create and configure the Flask app."""
+def create_app(config_name=None):
+    if config_name is None:
+        config_name = os.getenv('FLASK_CONFIG')
+
     app = Flask(__name__)
     CORS(app)
 
@@ -49,3 +45,8 @@ def create_app(config_name='development'):
     app.register_blueprint(category_blueprint, url_prefix="/category")
 
     return app
+
+# TODO: Set environment variables on AWS
+    # In your AWS deployment environment (like Elastic Beanstalk or EC2), set these environment variables:
+        # FLASK_CONFIG=production
+        # DATABASE_URL=your-aws-rds-url (e.g., postgresql://username:password@host:port/dbname)

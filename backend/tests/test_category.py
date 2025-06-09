@@ -2,10 +2,12 @@ import unittest
 from flask import json
 from config import create_app, db
 from models import Category
+from dotenv import load_dotenv
 
 class ExpenseTestCase(unittest.TestCase):
     def setUp(self):
         """Set up test client and initialize the database."""
+        load_dotenv('.flaskenv')
         self.app = create_app('testing')
         self.app.config["TESTING"] = True
         self.client = self.app.test_client()

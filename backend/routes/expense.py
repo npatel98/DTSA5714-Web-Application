@@ -89,7 +89,7 @@ def update_expense(expense_id):
                 value = validator(data[key])
                 setattr(expense, field_mapping[key], value)
             except (ValueError, TypeError):
-                return {"error": f"Invalid value for '{key}'."}, 400
+                return {"error": f"Invalid value for {key}."}, 400
 
     db.session.commit()
 
