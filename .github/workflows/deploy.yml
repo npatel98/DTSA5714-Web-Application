@@ -63,16 +63,16 @@ jobs:
           npm run build
 
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.8
-        env:
-          FLASK_CONFIG: production
-          FLASK_APP: app.py
-          PRODUCTION_DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+        uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
+        env:
+          FLASK_CONFIG: production
+          FLASK_APP: app.py
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
           script: |
             # Create app directory if it doesn't exist
             mkdir -p ~/app
