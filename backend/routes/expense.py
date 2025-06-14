@@ -1,25 +1,37 @@
 from flask import Blueprint, request, jsonify
 from models import Expense
 from config import db
-from datetime import datetime
+from datetime import datetime, UTC
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 expense_blueprint = Blueprint("expense", __name__)
 
-@expense_blueprint.route("/expenses", methods=['GET'])
-def get_expenses():
-    expenses = Expense.query.all()
+@expense_blueprint.route("/<int:user_id>/expenses", methods=['GET'])
+@jwt_required()
+def get_expenses(user_id):
+    current_user = get_jwt_identity()
+    if current_user != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403
+    
+    expenses = Expense.query.filter_by(user_id=user_id).all()
     json_expenses = list(map(lambda x: x.to_json(), expenses))
-
     return jsonify({"expenses": json_expenses})
 
-@expense_blueprint.route("/create_expense", methods=["POST"])
-def create_expense():
+@expense_blueprint.route("/<int:user_id>/expenses", methods=["POST"])
+@jwt_required()
+def create_expense(user_id):
+    current_user = get_jwt_identity()
+    if current_user != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403
+    
     data = request.get_json()
     
     date = data.get("date")
     category_id = data.get("categoryId")
     amount = data.get("amount")
     description = data.get("description")
+    created_at = datetime.now(tz=UTC)
+    updated_at = datetime.now(tz=UTC)
 
     if not date:
         return (
@@ -50,7 +62,14 @@ def create_expense():
     except ValueError:
         return {"error": "Invalid date format. Use YYYY-MM-DD."}, 400
 
-    new_expense = Expense(date=date, category_id=category_id, amount=amount, description=description)
+    new_expense = Expense(
+        user_id=user_id, 
+        date=date, 
+        category_id=category_id, 
+        amount=amount, 
+        description=description, 
+        created_at=created_at, 
+        updated_at=updated_at)
     try:
         db.session.add(new_expense)
         db.session.commit()
@@ -60,9 +79,14 @@ def create_expense():
     return jsonify({"message": "Expense created"}), 201
 
 
-@expense_blueprint.route("/update_expense/<int:expense_id>", methods=["PATCH"])
-def update_expense(expense_id):
-    expense = Expense.query.get(expense_id)
+@expense_blueprint.route("/<int:user_id>/expenses/<int:expense_id>", methods=["PATCH"])
+@jwt_required()
+def update_expense(user_id, expense_id):
+    current_user = get_jwt_identity()
+    if current_user != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403
+
+    expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first()
 
     if not expense:
         return jsonify({"message": "Expense not found"}), 404
@@ -95,9 +119,14 @@ def update_expense(expense_id):
 
     return jsonify({"message": f"Expense {expense.id} updated"}), 200
 
-@expense_blueprint.route("/delete_expense/<int:expense_id>", methods=["DELETE"])
-def delete_expense(expense_id):
-    expense = Expense.query.get(expense_id)
+@expense_blueprint.route("/<int:user_id>/expenses/<int:expense_id>", methods=["DELETE"])
+@jwt_required()
+def delete_expense(user_id, expense_id):
+    current_user = get_jwt_identity()
+    if current_user != user_id:
+        return jsonify({"message": "Unauthorized access"}), 403
+    
+    expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first()
 
     if not expense:
         return jsonify({"message": "Expense not found"}), 404

@@ -2,12 +2,16 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_migrate import Migrate
+from flask_jwt_extended import JWTManager
 import os
+from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+    JWT_VERIFY_SUB = False
 
 class DevelopmentConfig(Config):
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
@@ -28,11 +32,13 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 def create_app(config_name=None):
+    load_dotenv('.flaskenv')
     if config_name is None:
         config_name = os.getenv('FLASK_CONFIG')
 
     app = Flask(__name__)
     CORS(app)
+    JWTManager(app)
 
     app.config.from_object(config[config_name])
 
@@ -41,8 +47,10 @@ def create_app(config_name=None):
 
     from routes.expense import expense_blueprint
     from routes.category import category_blueprint
+    from routes.auth import auth_blueprint
     app.register_blueprint(expense_blueprint, url_prefix="/expense")
     app.register_blueprint(category_blueprint, url_prefix="/category")
+    app.register_blueprint(auth_blueprint, url_prefix="/auth")
 
     return app
 
