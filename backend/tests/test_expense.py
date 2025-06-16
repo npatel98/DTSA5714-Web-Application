@@ -258,6 +258,7 @@ class ExpenseTestCase(unittest.TestCase):
 
         self.assertEqual(expense.category_id, old_category_id)
         payload = {"categoryId": new_category_id}
+        print(payload)
         response = self.client.patch(
             f"/expense/{self.user_id}/expenses/{expense_id}", 
             data=json.dumps(payload), 
@@ -292,15 +293,19 @@ class ExpenseTestCase(unittest.TestCase):
             expense_id = expense.id
 
         self.assertEqual(expense.category_id, old_category_id)
-        payload = {"categoryId": "invalid_category_id"}
+        
+        non_existent_category_id = str(uuid.uuid4())
+        self.assertNotEqual(non_existent_category_id, old_category_id)
+
+        payload = {"categoryId": non_existent_category_id}
         response = self.client.patch(
             f"/expense/{self.user_id}/expenses/{expense_id}", 
             data=json.dumps(payload), 
             headers=self.headers
         )
 
-        self.assertEqual(response.status_code, 400)
-        self.assertIn(f"Invalid value for category", response.json["error"])
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("Category not found", response.json["error"])
 
     def test_update_expense_amount(self):
         with self.app.app_context():

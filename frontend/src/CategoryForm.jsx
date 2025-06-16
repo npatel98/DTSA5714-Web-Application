@@ -3,43 +3,73 @@ import { useState, useEffect } from "react";
 const CategoryForm = ({ updateCallback }) => {
   const [name, setName] = useState("");
   const [categories, setCategories] = useState([]);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
-    fetchCategories();
+    const userData = JSON.parse(localStorage.getItem("user"));
+    if (userData && userData.id) {
+      setUserId(userData.id);
+      fetchCategories(userData.id);
+    }
   }, []);
 
-  const fetchCategories = async () => {
-    const response = await fetch("http://127.0.0.1:5000/category/categories");
-    if (response.ok) {
-      const data = await response.json();
-      setCategories(data.categories);
-    } else {
-      alert("Failed to fetch categories");
+  const fetchCategories = async (id) => {
+    const token = localStorage.getItem("accessToken");
+    const url = `http://127.0.0.1:5000/category/${id}/categories`;
+
+    try {
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data.categories);
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || "Failed to fetch categories");
+      }
+    } catch (error) {
+      alert(`Failed to connect to server: ${error.message}`);
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!userId) {
+      alert("User not authenticated");
+      return;
+    }
+
+    const token = localStorage.getItem("accessToken");
     const data = {
       Category: name,
     };
-    const url = "http://127.0.0.1:5000/category/create_category";
+    const url = `http://127.0.0.1:5000/category/${userId}/categories`;
     const options = {
       method: "POST",
       headers: {
+        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(data),
     };
 
-    const response = await fetch(url, options);
-    if (response.ok) {
-      const newCategory = await response.json();
-      setCategories((prevCategories) => [...prevCategories, newCategory]); // Update the table
-      updateCallback();
-    } else {
-      alert("Failed to add category");
+    try {
+      const response = await fetch(url, options);
+      if (response.ok) {
+        fetchCategories(userId);
+        setName("");
+        if (updateCallback) updateCallback();
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || "Failed to add category");
+      }
+    } catch (error) {
+      alert(`Error connecting to server: ${error.message}`);
     }
   };
 
@@ -60,7 +90,6 @@ const CategoryForm = ({ updateCallback }) => {
         </tbody>
       </table>
 
-      {/* Form to add a new category */}
       <form onSubmit={handleSubmit}>
         <div>
           <label htmlFor="name">Category Name:</label>

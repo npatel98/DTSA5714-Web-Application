@@ -1,4 +1,5 @@
 import React from "react";
+import "./ExpenseList.css";
 
 const ExpenseList = ({ expenses, updateExpense, updateCallback }) => {
   const formatDate = (dateString) => {
@@ -18,27 +19,39 @@ const ExpenseList = ({ expenses, updateExpense, updateCallback }) => {
     }
 
     try {
+      const token = localStorage.getItem("accessToken");
+      const userData = JSON.parse(localStorage.getItem("user"));
+
+      if (!userData || !userData.id) {
+        throw new Error("User not authenticated");
+      }
+
       const options = {
         method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       };
-      const response = await fetch(
-        `http://127.0.0.1:5000/expense/delete_expense/${id}`,
-        options
-      );
-      if (response.status === 200) {
+
+      const url = `http://127.0.0.1:5000/expense/${userData.id}/expenses/${id}`;
+      const response = await fetch(url, options);
+      if (response.ok) {
         updateCallback();
       } else {
-        console.error("Failed to delete");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete expense");
       }
     } catch (error) {
-      alert(error);
+      console.error("Error deleting expense:", error);
+      alert(`Error deleting expense: ${error.message}`);
     }
   };
 
   return (
     <div>
       <h2>Expense Log</h2>
-      <table>
+      <table className="expense-table">
         <thead>
           <tr>
             <th>Date</th>

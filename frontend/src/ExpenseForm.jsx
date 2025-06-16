@@ -8,12 +8,28 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
     existingExpense.Description || ""
   );
   const [categories, setCategories] = useState({});
+  const [userId, setUserId] = useState(null);
 
   const updating = Object.entries(existingExpense).length !== 0;
 
-  const fetchCategories = async () => {
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("user"));
+    if (userData && userData.id) {
+      setUserId(userData.id);
+      fetchCategories(userData.id);
+    }
+  }, []);
+
+  const fetchCategories = async (id) => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/category/categories");
+      const url = `http://127.0.1:5000/category/${id}/categories`;
+      const token = localStorage.getItem("accessToken");
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setCategories(data.categories);
@@ -24,10 +40,6 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
       console.error("Error fetching categories:", error);
     }
   };
-
-  useEffect(() => {
-    fetchCategories();
-  }, [existingExpense]);
 
   useEffect(() => {
     if (existingExpense.Category && categories) {
@@ -43,30 +55,48 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
   const onSubmit = async (e) => {
     e.preventDefault();
 
+    if (!userId) {
+      alert("User not authenticated");
+      return;
+    }
+
+    const token = localStorage.getItem("accessToken");
     const data = {
       date: new Date(date).toISOString().split("T")[0],
-      categoryId: parseInt(category) + 1,
-      amount,
+      categoryId: category,
+      amount: parseFloat(amount),
       description,
     };
-    const url =
-      "http://127.0.0.1:5000/expense/" +
-      (updating ? `update_expense/${existingExpense.id}` : "create_expense");
-    const options = {
-      method: updating ? "PATCH" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    };
-    const response = await fetch(url, options);
-    if (response.status !== 201 && response.status !== 200) {
-      const data = await response.json();
-      alert(data.error);
-    } else {
-      updateCallback();
+    const url = updating
+      ? `http://127.0.0.1:5000/expense/${userId}/expenses/${existingExpense.id}`
+      : `http://127.0.0.1:5000/expense/${userId}/expenses`;
+
+    try {
+      const response = await fetch(url, {
+        method: updating ? "PATCH" : "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        updateCallback();
+      } else {
+        const errorData = await response.json();
+        console.error("Server error:", errorData);
+        alert(errorData.message || "Failed to save expense");
+      }
+    } catch (error) {
+      console.error("Request error:", error);
+      alert(`Error connecting to server: ${error.message}`);
     }
   };
+
+  if (!userId) {
+    return <div>Please log in to manage expenses.</div>;
+  }
 
   return (
     <form onSubmit={onSubmit}>

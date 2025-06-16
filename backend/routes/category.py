@@ -6,7 +6,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 category_blueprint = Blueprint("category", __name__)
 
-@category_blueprint.route("/<int:user_id>/categories", methods=['GET'])
+@category_blueprint.route("/<user_id>/categories", methods=['GET'])
 @jwt_required()
 def get_expenses(user_id):
     current_user = get_jwt_identity()
@@ -17,7 +17,7 @@ def get_expenses(user_id):
     json_categories = list(map(lambda x: x.to_json(), categories))
     return jsonify({"categories": json_categories})
 
-@category_blueprint.route("/<int:user_id>/categories", methods=["POST"])
+@category_blueprint.route("/<user_id>/categories", methods=["POST"])
 @jwt_required()
 def create_category(user_id):
     current_user = get_jwt_identity()
@@ -40,7 +40,7 @@ def create_category(user_id):
 
     return jsonify({"message": "Category created"}), 201
 
-@category_blueprint.route("/<int:user_id>/categories/<int:category_id>", methods=["PATCH"])
+@category_blueprint.route("/<user_id>/categories/<category_id>", methods=["PATCH"])
 @jwt_required()
 def update_category(user_id, category_id):
     current_user = get_jwt_identity()
@@ -58,7 +58,7 @@ def update_category(user_id, category_id):
 
     return jsonify({"message": f"Category {category.id} updated"}), 200
 
-@category_blueprint.route("/<int:user_id>/categories/<int:category_id>", methods=["DELETE"])
+@category_blueprint.route("/<user_id>/categories/<category_id>", methods=["DELETE"])
 @jwt_required()
 def delete_category(user_id, category_id):
     current_user = get_jwt_identity()

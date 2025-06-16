@@ -1,12 +1,12 @@
 from flask import Blueprint, request, jsonify
-from models import Expense
+from models import Expense, Category
 from config import db
 from datetime import datetime, UTC
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 expense_blueprint = Blueprint("expense", __name__)
 
-@expense_blueprint.route("/<int:user_id>/expenses", methods=['GET'])
+@expense_blueprint.route("/<user_id>/expenses", methods=['GET'])
 @jwt_required()
 def get_expenses(user_id):
     current_user = get_jwt_identity()
@@ -17,7 +17,7 @@ def get_expenses(user_id):
     json_expenses = list(map(lambda x: x.to_json(), expenses))
     return jsonify({"expenses": json_expenses})
 
-@expense_blueprint.route("/<int:user_id>/expenses", methods=["POST"])
+@expense_blueprint.route("/<user_id>/expenses", methods=["POST"])
 @jwt_required()
 def create_expense(user_id):
     current_user = get_jwt_identity()
@@ -79,7 +79,7 @@ def create_expense(user_id):
     return jsonify({"message": "Expense created"}), 201
 
 
-@expense_blueprint.route("/<int:user_id>/expenses/<int:expense_id>", methods=["PATCH"])
+@expense_blueprint.route("/<user_id>/expenses/<expense_id>", methods=["PATCH"])
 @jwt_required()
 def update_expense(user_id, expense_id):
     current_user = get_jwt_identity()
@@ -89,13 +89,18 @@ def update_expense(user_id, expense_id):
     expense = Expense.query.filter_by(id=expense_id, user_id=user_id).first()
 
     if not expense:
-        return jsonify({"message": "Expense not found"}), 404
+        return jsonify({"error": "Expense not found"}), 404
 
     data = request.get_json()
 
+    if "categoryId" in data:
+        category = Category.query.filter_by(id=data["categoryId"], user_id=user_id).first()
+        if not category:
+            return jsonify({"error": "Category not found"}), 404
+
     validators = {
         "date": lambda v: datetime.strptime(v, "%Y-%m-%d").date(),
-        "categoryId": lambda v: v if isinstance(v, int) else (_ for _ in ()).throw(TypeError),
+        "categoryId": lambda v: v if isinstance(v, str) else (_ for _ in ()).throw(TypeError),
         "amount": lambda v: float(v),
         "description": lambda v: v if isinstance(v, str) else (_ for _ in ()).throw(TypeError),
     }
@@ -119,7 +124,7 @@ def update_expense(user_id, expense_id):
 
     return jsonify({"message": f"Expense {expense.id} updated"}), 200
 
-@expense_blueprint.route("/<int:user_id>/expenses/<int:expense_id>", methods=["DELETE"])
+@expense_blueprint.route("/<user_id>/expenses/<expense_id>", methods=["DELETE"])
 @jwt_required()
 def delete_expense(user_id, expense_id):
     current_user = get_jwt_identity()
