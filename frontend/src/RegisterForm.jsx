@@ -33,7 +33,7 @@ const RegisterForm = ({ onRegisterSuccess }) => {
       <h2>Register</h2>
       {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className="input-label">
           <label htmlFor="username">Username:</label>
           <input
             type="text"
@@ -43,7 +43,7 @@ const RegisterForm = ({ onRegisterSuccess }) => {
             required
           />
         </div>
-        <div>
+        <div className="input-label">
           <label htmlFor="password">Password:</label>
           <input
             type="password"

@@ -32,7 +32,20 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
       });
       if (response.ok) {
         const data = await response.json();
-        setCategories(data.categories);
+        const categoriesMap = {};
+
+        // Sort categories by CreatedAt field
+        const sortedCategories = data.categories.sort((a, b) => {
+          return new Date(a.createdAt) - new Date(b.createdAt);
+        });
+
+        sortedCategories.forEach((category) => {
+          categoriesMap[category.id] = {
+            Category: category.Category,
+            uuid: category.id,
+          };
+        });
+        setCategories(categoriesMap);
       } else {
         console.error("Failed to fetch categories");
       }
@@ -57,6 +70,11 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
 
     if (!userId) {
       alert("User not authenticated");
+      return;
+    }
+
+    if (!category) {
+      alert("Please select a category.");
       return;
     }
 

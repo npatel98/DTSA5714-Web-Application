@@ -127,5 +127,53 @@ class CategoryTestCase(unittest.TestCase):
             self.assertEqual(response.status_code, 403)
             self.assertIn("Unauthorized access", response.json["message"])
 
+    def test_different_users_same_category(self):
+        with self.app.app_context():
+            # Create second test user
+            second_user = User(
+                username="test_user_2",
+                password="test123"
+            )
+            db.session.add(second_user)
+            db.session.commit()
+            db.session.refresh(second_user)
+            
+            # Create access token for second user
+            user_2_access_token = create_access_token(identity=second_user.id)
+            user_2_headers = {
+                "Authorization": f"Bearer {user_2_access_token}",
+                "Content-Type": "application/json"
+            }
+
+            # Create same category name for both users
+            payload = {
+                "Category": "Groceries"
+            }
+
+            # Create category for first user
+            response1 = self.client.post(
+                f"/category/{self.user_id}/categories",
+                data=json.dumps(payload),
+                headers=self.headers
+            )
+            self.assertEqual(response1.status_code, 201)
+
+            # Create same category for second user
+            response2 = self.client.post(
+                f"/category/{second_user.id}/categories",
+                data=json.dumps(payload),
+                headers=user_2_headers
+            )
+            self.assertEqual(response2.status_code, 201)
+
+            # Verify both categories exist in database
+            user1_category = Category.query.filter_by(user_id=self.user_id, category="Groceries").first()
+            user2_category = Category.query.filter_by(user_id=second_user.id, category="Groceries").first()
+            
+            self.assertIsNotNone(user1_category)
+            self.assertIsNotNone(user2_category)
+            self.assertNotEqual(user1_category.id, user2_category.id)
+        
+
 if __name__ == "__main__":
     unittest.main()

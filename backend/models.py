@@ -20,7 +20,7 @@ class User(db.Model):
 class Category(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
-    category = db.Column(db.String(100), unique=True, nullable=False)
+    category = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now(tz=UTC), nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.now(tz=UTC), onupdate=datetime.now(tz=UTC), nullable=False)
     expenses = db.relationship('Expense', backref='category', lazy=True, passive_deletes=True)
@@ -33,14 +33,15 @@ class Category(db.Model):
         return {
             "id": self.id,
             "user_id": self.user_id,
-            "Category": self.category
+            "Category": self.category,
+            "createdAt": self.created_at.isoformat(),
         }
     
 class Expense(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     date = db.Column(db.Date, nullable=False)
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id', ondelete='RESTRICT'), nullable=False)
+    category_id = db.Column(db.String, db.ForeignKey('category.id', ondelete='RESTRICT'), nullable=False)
     amount = db.Column(db.Numeric(10, 2), nullable=False)
     description = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now(tz=UTC), nullable=False)

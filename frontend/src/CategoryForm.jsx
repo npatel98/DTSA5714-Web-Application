@@ -82,11 +82,13 @@ const CategoryForm = ({ updateCallback }) => {
           </tr>
         </thead>
         <tbody>
-          {Object.values(categories).map((categoryObj, index) => (
-            <tr key={index}>
-              <td>{categoryObj.Category}</td>
-            </tr>
-          ))}
+          {Object.values(categories)
+            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+            .map((categoryObj, index) => (
+              <tr key={index}>
+                <td>{categoryObj.Category}</td>
+              </tr>
+            ))}
         </tbody>
       </table>
 

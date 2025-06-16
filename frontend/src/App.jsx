@@ -4,7 +4,7 @@ import ExpenseForm from "./ExpenseForm";
 import CategoryForm from "./CategoryForm";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
-import "./App.css";
+import "./styles/App.css";
 
 function App() {
   const [expenses, setExpenses] = useState([]);

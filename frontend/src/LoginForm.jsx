@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "./styles/Auth.css";
 
 const LoginForm = ({ onLoginSuccess }) => {
   const [username, setUsername] = useState("");
@@ -33,10 +34,10 @@ const LoginForm = ({ onLoginSuccess }) => {
 
   return (
     <div className="auth-form">
-      <h2>Login</h2>
+      <h2>Sign In</h2>
       {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>
-        <div>
+        <div className="input-label">
           <label htmlFor="username">Username:</label>
           <input
             type="text"
@@ -46,7 +47,7 @@ const LoginForm = ({ onLoginSuccess }) => {
             required
           />
         </div>
-        <div>
+        <div className="input-label">
           <label htmlFor="password">Password:</label>
           <input
             type="password"
