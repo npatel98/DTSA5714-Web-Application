@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import ExpenseList from "./ExpenseList";
-import ExpenseForm from "./ExpenseForm";
-import CategoryForm from "./CategoryForm";
-import LoginForm from "./LoginForm";
-import RegisterForm from "./RegisterForm";
+import ExpenseList from "./components/ExpenseList";
+import ExpenseForm from "./components/ExpenseForm";
+import CategoryForm from "./components/CategoryForm";
+import AuthForm from "./components/AuthForm";
 import "./styles/App.css";
 
 function App() {
@@ -104,21 +103,17 @@ function App() {
   if (!isAuthenticated) {
     return (
       <div className="auth-container">
-        {showRegister ? (
-          <>
-            <RegisterForm onRegisterSuccess={() => setShowRegister(false)} />
-            <button onClick={() => setShowRegister(false)}>
-              Already have an account? Login
-            </button>
-          </>
-        ) : (
-          <>
-            <LoginForm onLoginSuccess={handleLoginSuccess} />
-            <button onClick={() => setShowRegister(true)}>
-              Need an account? Register
-            </button>
-          </>
-        )}
+        <AuthForm
+          mode={showRegister ? "register" : "login"}
+          onSuccess={
+            showRegister ? () => setShowRegister(false) : handleLoginSuccess
+          }
+        />
+        <button onClick={() => setShowRegister(!showRegister)}>
+          {showRegister
+            ? "Already have an account? Login"
+            : "Need an account? Register"}
+        </button>
       </div>
     );
   }

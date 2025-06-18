@@ -1,15 +1,19 @@
 import { useState } from "react";
-import "./styles/Auth.css";
+import "../styles/Auth.css";
 
-const LoginForm = ({ onLoginSuccess }) => {
+const AuthForm = ({ mode = "login", onSuccess }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const isLogin = mode === "login";
+  const endpoint = isLogin ? "login" : "register";
+  const title = isLogin ? "Sign In" : "Register";
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://127.0.0.1:5000/auth/login", {
+      const response = await fetch(`http://127.0.0.1:5000/auth/${endpoint}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -20,10 +24,14 @@ const LoginForm = ({ onLoginSuccess }) => {
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem("accessToken", data.access_token);
-        localStorage.setItem("refreshToken", data.refesh_token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        onLoginSuccess(data.user);
+        if (isLogin) {
+          localStorage.setItem("accessToken", data.access_token);
+          localStorage.setItem("refreshToken", data.refresh_token);
+          localStorage.setItem("user", JSON.stringify(data.user));
+          onSuccess(data.user);
+        } else {
+          onSuccess();
+        }
       } else {
         setError(data.message);
       }
@@ -34,7 +42,7 @@ const LoginForm = ({ onLoginSuccess }) => {
 
   return (
     <div className="auth-form">
-      <h2>Sign In</h2>
+      <h2>{title}</h2>
       {error && <div className="error">{error}</div>}
       <form onSubmit={handleSubmit}>
         <div className="input-label">
@@ -57,10 +65,10 @@ const LoginForm = ({ onLoginSuccess }) => {
             required
           />
         </div>
-        <button type="submit">Login</button>
+        <button type="submit">{title}</button>
       </form>
     </div>
   );
 };
 
-export default LoginForm;
+export default AuthForm;
