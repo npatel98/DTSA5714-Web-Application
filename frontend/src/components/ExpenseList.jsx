@@ -68,8 +68,14 @@ const ExpenseList = ({ expenses, updateExpense, updateCallback }) => {
               <td>{expense.Category}</td>
               <td>
                 {expense.Amount < 0
-                  ? `$(${Math.abs(expense.Amount).toFixed(2)})`
-                  : `$${expense.Amount.toFixed(2)}`}
+                  ? `$(${Math.abs(expense.Amount).toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })})`
+                  : `$${expense.Amount.toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}`}
               </td>
               <td>{expense.Description}</td>
               <td>

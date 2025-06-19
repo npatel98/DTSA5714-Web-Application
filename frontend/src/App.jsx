@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import ExpenseList from "./components/ExpenseList";
 import ExpenseForm from "./components/ExpenseForm";
+import CategoryList from "./components/CategoryList";
 import CategoryForm from "./components/CategoryForm";
 import AuthForm from "./components/AuthForm";
 import "./styles/App.css";
@@ -10,9 +11,13 @@ function App() {
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [currentExpense, setCurrentExpense] = useState({});
+  const [currentCategory, setCurrentCategory] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [showRegister, setShowRegister] = useState(false);
   const [user, setUser] = useState(null);
+  const [activeView, setActiveView] = useState("expenses");
+  const [categories, setCategories] = useState([]);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -21,8 +26,47 @@ function App() {
       setUser(JSON.parse(storedUser));
       setIsAuthenticated(true);
       fetchExpenses();
+      fetchCategories();
     }
+
+    const handleClickOutside = (event) => {
+      if (!event.target.closest(".settings-dropdown")) {
+        setIsSettingsOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
   }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const userData = JSON.parse(localStorage.getItem("user"));
+      if (!userData || !userData.id) {
+        throw new Error("User not authenticated");
+      }
+      const response = await fetch(
+        `http://127.0.1:5000/category/${userData.id}/categories`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        setCategories(data.categories);
+      } else {
+        console.error("Failed to fetch categories");
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
   const fetchExpenses = async () => {
     try {
@@ -79,6 +123,7 @@ function App() {
 
   const closeCategoryModal = () => {
     setIsCategoryModalOpen(false);
+    setCurrentCategory({});
   };
 
   const openCategoryModal = () => {
@@ -96,8 +141,15 @@ function App() {
     fetchExpenses();
   };
 
-  const onCategoryAdded = () => {
+  const openEditCategoryModal = (category) => {
+    if (isCategoryModalOpen) return;
+    setCurrentCategory(category);
+    setIsCategoryModalOpen(true);
+  };
+
+  const onCategoryUpdate = () => {
     closeCategoryModal();
+    fetchCategories();
   };
 
   if (!isAuthenticated) {
@@ -122,38 +174,85 @@ function App() {
     <>
       <div className="welcome-header">
         <span>Welcome, {user.username}!</span>
-        <button onClick={handleLogout}>Logout</button>
+        <div className="nav-buttons">
+          <button
+            className={activeView === "expenses" ? "active" : ""}
+            onClick={() => {
+              setActiveView("expenses");
+              fetchExpenses();
+            }}
+          >
+            Expenses
+          </button>
+          <button
+            className={activeView === "categories" ? "active" : ""}
+            onClick={() => {
+              setActiveView("categories");
+              fetchCategories();
+            }}
+          >
+            Categories
+          </button>
+        </div>
+        <div className="settings-dropdown">
+          <button
+            className="settings-button"
+            onClick={() => setIsSettingsOpen(!isSettingsOpen)}
+          >
+            Settings
+          </button>
+          {isSettingsOpen && (
+            <div className="dropdown-menu">
+              <button onClick={handleLogout}>Logout</button>
+            </div>
+          )}
+        </div>
       </div>
 
-      <ExpenseList
-        expenses={expenses}
-        updateExpense={openEditExpenseModal}
-        updateCallback={onExpenseUpdate}
-      />
-      <button onClick={openExpenseModal}>Create New Expense</button>
-      {isExpenseModalOpen && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={closeExpenseModal}>
-              &times;
-            </span>
-            <ExpenseForm
-              existingExpense={currentExpense}
-              updateCallback={onExpenseUpdate}
-            />
-          </div>
-        </div>
-      )}
-      <button onClick={openCategoryModal}>Create New Category</button>
-      {isCategoryModalOpen && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={closeCategoryModal}>
-              &times;
-            </span>
-            <CategoryForm updateCallback={onCategoryAdded} />
-          </div>
-        </div>
+      {activeView === "expenses" ? (
+        <>
+          <ExpenseList
+            expenses={expenses}
+            updateExpense={openEditExpenseModal}
+            updateCallback={onExpenseUpdate}
+          />
+          <button onClick={openExpenseModal}>Create New Expense</button>
+          {isExpenseModalOpen && (
+            <div className="modal">
+              <div className="modal-content">
+                <span className="close" onClick={closeExpenseModal}>
+                  &times;
+                </span>
+                <ExpenseForm
+                  existingExpense={currentExpense}
+                  updateCallback={onExpenseUpdate}
+                />
+              </div>
+            </div>
+          )}
+        </>
+      ) : (
+        <>
+          <CategoryList
+            categories={categories}
+            updateCategory={openEditCategoryModal}
+            updateCallback={onCategoryUpdate}
+          />
+          <button onClick={openCategoryModal}>Create New Category</button>
+          {isCategoryModalOpen && (
+            <div className="modal">
+              <div className="modal-content">
+                <span className="close" onClick={closeCategoryModal}>
+                  &times;
+                </span>
+                <CategoryForm
+                  existingCategory={currentCategory}
+                  updateCallback={onCategoryUpdate}
+                />
+              </div>
+            </div>
+          )}
+        </>
       )}
     </>
   );

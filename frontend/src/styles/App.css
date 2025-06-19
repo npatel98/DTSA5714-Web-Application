@@ -80,6 +80,31 @@
   margin-bottom: 2rem;
 }
 
+.nav-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.nav-buttons button {
+  padding: 0.5rem 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.nav-buttons button.active {
+  background-color: #646cff;
+  color: white;
+  border-color: #535bf2;
+}
+
+.nav-buttons button:hover:not(.active) {
+  background-color: #f5f5f5;
+}
+
 .welcome-header {
   position: fixed;
   top: 0;
@@ -88,10 +113,57 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.1rem;
+  padding: 0.25rem 0.5rem;
   background-color: #f5f5f5;
   border-bottom: 1px solid #ddd;
   z-index: 1000;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.settings-dropdown {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.settings-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem 0.75rem;
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.settings-button:hover {
+  opacity: 0.8;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background-color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  padding: 0.5rem;
+  min-width: 120px;
+  z-index: 1000;
+}
+
+.dropdown-menu button {
+  width: 100%;
+  text-align: left;
+  padding: 0.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.dropdown-menu button:hover {
+  background-color: #f5f5f5;
 }
 
 /* Dark mode support */
@@ -108,5 +180,32 @@
 
   .read-the-docs {
     color: #aaa;
+  }
+
+  .nav-buttons button {
+    border-color: #444;
+    color: #fff;
+  }
+
+  .nav-buttons button:hover:not(.active) {
+    background-color: #2d2d2d;
+  }
+
+  .welcome-header {
+    background-color: #1a1a1a;
+    border-bottom: 1px solid #444;
+  }
+
+  .settings-button {
+    border-color: #fff;
+  }
+
+  .dropdown-menu {
+    background-color: #1a1a1a;
+    border-color: #444;
+  }
+
+  .dropdown-menu button:hover {
+    background-color: #2d2d2d;
   }
 }

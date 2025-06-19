@@ -1,40 +1,23 @@
 import { useState, useEffect } from "react";
 
-const CategoryForm = ({ updateCallback }) => {
-  const [name, setName] = useState("");
-  const [categories, setCategories] = useState([]);
+const CategoryForm = ({ existingCategory = {}, updateCallback }) => {
+  const [name, setName] = useState(existingCategory.Category || "");
   const [userId, setUserId] = useState(null);
+
+  const updating = Object.entries(existingCategory).length !== 0;
+
+  useEffect(() => {
+    if (existingCategory.Category) {
+      setName(existingCategory.Category);
+    }
+  }, [existingCategory]);
 
   useEffect(() => {
     const userData = JSON.parse(localStorage.getItem("user"));
     if (userData && userData.id) {
       setUserId(userData.id);
-      fetchCategories(userData.id);
     }
   }, []);
-
-  const fetchCategories = async (id) => {
-    const token = localStorage.getItem("accessToken");
-    const url = `http://127.0.0.1:5000/category/${id}/categories`;
-
-    try {
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setCategories(data.categories);
-      } else {
-        const errorData = await response.json();
-        alert(errorData.message || "Failed to fetch categories");
-      }
-    } catch (error) {
-      alert(`Failed to connect to server: ${error.message}`);
-    }
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -48,9 +31,12 @@ const CategoryForm = ({ updateCallback }) => {
     const data = {
       Category: name,
     };
-    const url = `http://127.0.0.1:5000/category/${userId}/categories`;
+    const url = updating
+      ? `http://127.0.0.1:5000/category/${userId}/categories/${existingCategory.id}`
+      : `http://127.0.0.1:5000/category/${userId}/categories`;
+
     const options = {
-      method: "POST",
+      method: updating ? "PATCH" : "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -61,50 +47,58 @@ const CategoryForm = ({ updateCallback }) => {
     try {
       const response = await fetch(url, options);
       if (response.ok) {
-        fetchCategories(userId);
-        setName("");
-        if (updateCallback) updateCallback();
+        // Reset form if adding new category
+        if (!updating) {
+          setName("");
+        }
+        // Fetch updated categories list
+        const categoriesResponse = await fetch(
+          `http://127.0.0.1:5000/category/${userId}/categories`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
+        if (categoriesResponse.ok) {
+          const categoriesData = await categoriesResponse.json();
+          if (updateCallback) {
+            updateCallback(categoriesData.categories);
+          }
+        }
       } else {
         const errorData = await response.json();
-        alert(errorData.message || "Failed to add category");
+        alert(
+          errorData.message ||
+            `Failed to ${updating ? "update" : "add"} category`
+        );
       }
     } catch (error) {
       alert(`Error connecting to server: ${error.message}`);
     }
   };
 
-  return (
-    <div>
-      <table border="1">
-        <thead>
-          <tr>
-            <th>Categories</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.values(categories)
-            .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-            .map((categoryObj, index) => (
-              <tr key={index}>
-                <td>{categoryObj.Category}</td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
+  if (!userId) {
+    return <div>Please log in to manage categories.</div>;
+  }
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Category Name:</label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <button type="submit">Add Category</button>
-      </form>
-    </div>
+  return (
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor="name">Category Name:</label>
+        <input
+          type="text"
+          id="name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+      </div>
+      <button type="submit">
+        {updating ? "Update Category" : "Add Category"}
+      </button>
+    </form>
   );
 };
 
