@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import AuthService from "../services/AuthService";
 
 const CategoryForm = ({ existingCategory = {}, updateCallback }) => {
   const [name, setName] = useState(existingCategory.Category || "");
@@ -27,40 +28,30 @@ const CategoryForm = ({ existingCategory = {}, updateCallback }) => {
       return;
     }
 
-    const token = localStorage.getItem("accessToken");
     const data = {
       Category: name,
     };
+
     const url = updating
       ? `http://127.0.0.1:5000/category/${userId}/categories/${existingCategory.id}`
       : `http://127.0.0.1:5000/category/${userId}/categories`;
 
-    const options = {
-      method: updating ? "PATCH" : "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    };
-
     try {
-      const response = await fetch(url, options);
+      const response = await AuthService.fetchWithAuth(url, {
+        method: updating ? "PATCH" : "POST",
+        body: JSON.stringify(data),
+      });
+
       if (response.ok) {
         // Reset form if adding new category
         if (!updating) {
           setName("");
         }
         // Fetch updated categories list
-        const categoriesResponse = await fetch(
-          `http://127.0.0.1:5000/category/${userId}/categories`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-          }
+        const categoriesResponse = await AuthService.fetchWithAuth(
+          `http://127.0.0.1:5000/category/${userId}/categories`
         );
+
         if (categoriesResponse.ok) {
           const categoriesData = await categoriesResponse.json();
           if (updateCallback) {

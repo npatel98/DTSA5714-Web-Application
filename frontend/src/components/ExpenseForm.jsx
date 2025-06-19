@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import AuthService from "../services/AuthService";
 
 const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
   const [date, setDate] = useState(existingExpense.Date || "");
@@ -23,18 +24,12 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
   const fetchCategories = async (id) => {
     try {
       const url = `http://127.0.1:5000/category/${id}/categories`;
-      const token = localStorage.getItem("accessToken");
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await AuthService.fetchWithAuth(url);
+
       if (response.ok) {
         const data = await response.json();
         const categoriesMap = {};
 
-        // Sort categories by CreatedAt field
         const sortedCategories = data.categories.sort((a, b) => {
           return new Date(a.createdAt) - new Date(b.createdAt);
         });
@@ -78,24 +73,20 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
       return;
     }
 
-    const token = localStorage.getItem("accessToken");
     const data = {
       date: new Date(date).toISOString().split("T")[0],
       categoryId: category,
       amount: parseFloat(amount),
       description,
     };
+
     const url = updating
       ? `http://127.0.0.1:5000/expense/${userId}/expenses/${existingExpense.id}`
       : `http://127.0.0.1:5000/expense/${userId}/expenses`;
 
     try {
-      const response = await fetch(url, {
+      const response = await AuthService.fetchWithAuth(url, {
         method: updating ? "PATCH" : "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
         body: JSON.stringify(data),
       });
 

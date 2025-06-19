@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import AuthService from "./services/AuthService";
 import ExpenseList from "./components/ExpenseList";
 import ExpenseForm from "./components/ExpenseForm";
 import CategoryList from "./components/CategoryList";
@@ -43,19 +44,12 @@ function App() {
 
   const fetchCategories = async () => {
     try {
-      const token = localStorage.getItem("accessToken");
       const userData = JSON.parse(localStorage.getItem("user"));
       if (!userData || !userData.id) {
         throw new Error("User not authenticated");
       }
-      const response = await fetch(
-        `http://127.0.1:5000/category/${userData.id}/categories`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+      const response = await AuthService.fetchWithAuth(
+        `http://127.0.0.1:5000/category/${userData.id}/categories`
       );
       if (response.ok) {
         const data = await response.json();
@@ -70,23 +64,13 @@ function App() {
 
   const fetchExpenses = async () => {
     try {
-      const token = localStorage.getItem("accessToken");
       const userData = JSON.parse(localStorage.getItem("user"));
-
       if (!userData || !userData.id) {
         throw new Error("User not authenticated");
       }
-
-      const response = await fetch(
-        `http://127.0.0.1:5000/expense/${userData.id}/expenses`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+      const response = await AuthService.fetchWithAuth(
+        `http://127.0.0.1:5000/expense/${userData.id}/expenses`
       );
-
       if (response.ok) {
         const data = await response.json();
         setExpenses(data.expenses);
@@ -105,9 +89,7 @@ function App() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    localStorage.removeItem("user");
+    AuthService.logout();
     setIsAuthenticated(false);
     setUser(null);
   };

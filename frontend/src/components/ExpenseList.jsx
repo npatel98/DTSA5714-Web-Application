@@ -1,4 +1,5 @@
 import React from "react";
+import AuthService from "../services/AuthService";
 import "../styles/ExpenseList.css";
 
 const ExpenseList = ({ expenses, updateExpense, updateCallback }) => {
@@ -19,23 +20,16 @@ const ExpenseList = ({ expenses, updateExpense, updateCallback }) => {
     }
 
     try {
-      const token = localStorage.getItem("accessToken");
       const userData = JSON.parse(localStorage.getItem("user"));
-
       if (!userData || !userData.id) {
         throw new Error("User not authenticated");
       }
 
-      const options = {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      };
-
       const url = `http://127.0.0.1:5000/expense/${userData.id}/expenses/${id}`;
-      const response = await fetch(url, options);
+      const response = await AuthService.fetchWithAuth(url, {
+        method: "DELETE",
+      });
+
       if (response.ok) {
         updateCallback();
       } else {

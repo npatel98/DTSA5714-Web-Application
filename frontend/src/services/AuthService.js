@@ -1,4 +1,40 @@
 class AuthService {
+  static async login(username, password) {
+    const response = await fetch("http://127.0.0.1:5000/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Login failed");
+    }
+
+    const data = await response.json();
+    localStorage.setItem("accessToken", data.access_token);
+    localStorage.setItem("refreshToken", data.refresh_token);
+    localStorage.setItem("user", JSON.stringify(data.user));
+    return data;
+  }
+
+  static async register(username, password) {
+    const response = await fetch("http://127.0.0.1:5000/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username, password }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Registration failed");
+    }
+
+    return await response.json();
+  }
+
   static async refreshToken() {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
@@ -24,7 +60,7 @@ class AuthService {
     } catch (error) {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      localStorage.remove("user");
+      localStorage.removeItem("user");
       throw error;
     }
   }
@@ -48,7 +84,7 @@ class AuthService {
     if (response.status === 401) {
       const newAccessToken = await this.refreshToken();
 
-      const retryResponse = await fetch(url, {
+      return fetch(url, {
         ...options,
         headers: {
           ...options.headers,
@@ -56,10 +92,16 @@ class AuthService {
           "Content-Type": "application/json",
         },
       });
-
-      return retryResponse;
     }
 
     return response;
   }
+
+  static logout() {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+  }
 }
+
+export default AuthService;

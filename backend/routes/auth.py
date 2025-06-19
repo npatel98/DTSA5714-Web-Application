@@ -44,7 +44,7 @@ def login():
     return jsonify({
         "message": "Login successful",
         "access_token": access_token,
-        "refesh_token": refresh_token,
+        "refresh_token": refresh_token,
         "user": user.to_json(),
     }), 200
 
