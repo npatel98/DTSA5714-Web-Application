@@ -53,7 +53,7 @@ class AuthTestCase(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertIn("access_token", response.json)
-        self.assertIn("refesh_token", response.json)
+        self.assertIn("refresh_token", response.json)
         self.assertIn("user", response.json)
         self.assertIn("Login successful", response.json["message"])
 
@@ -124,7 +124,7 @@ class AuthTestCase(unittest.TestCase):
         login_response = self.client.post(
             "/auth/login", data=json.dumps(payload), content_type="application/json"
         )
-        refresh_token = login_response.json["refesh_token"]
+        refresh_token = login_response.json["refresh_token"]
 
         headers = {
             "Authorization": f"Bearer {refresh_token}"
