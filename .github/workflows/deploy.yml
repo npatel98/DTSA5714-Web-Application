@@ -18,25 +18,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install SSH key
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
-
       - name: Deploy to EC2
         uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          port: 22
         env:
           FLASK_CONFIG: production
           FLASK_APP: app.py
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
           VITE_API_URL: http://${{ secrets.VITE_API_URL }}/api
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
           script: |
+            echo "Starting deployment..."
+
             # Create app directory if it doesn't exist
             mkdir -p ~/app
             cd ~/app
@@ -49,12 +46,12 @@ jobs:
             fi
 
             # Set up Python virtual environment if it doesn't exist
-            if [ ! -d "backend/venv" ]; then
-              python3 -m venv backend/venv
+            if [ ! -d "venv" ]; then
+              python3 -m venv venv
             fi
 
             # Activate virtual environment and update dependencies
-            source backend/venv/bin/activate
+            source venv/bin/activate
             cd backend
             pip install -r requirements.txt
 
