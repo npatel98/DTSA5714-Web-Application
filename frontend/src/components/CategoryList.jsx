@@ -17,7 +17,9 @@ const CategoryList = ({ categories, updateCategory, updateCallback }) => {
         throw new Error("User not authenticated");
       }
 
-      const url = `http://127.0.0.1:5000/category/${userData.id}/categories/${id}`;
+      const url = `${import.meta.env.VITE_API_URL}/category/${
+        userData.id
+      }/categories/${id}`;
       const response = await AuthService.fetchWithAuth(url, {
         method: "DELETE",
       });

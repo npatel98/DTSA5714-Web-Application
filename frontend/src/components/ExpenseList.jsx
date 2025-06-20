@@ -25,7 +25,9 @@ const ExpenseList = ({ expenses, updateExpense, updateCallback }) => {
         throw new Error("User not authenticated");
       }
 
-      const url = `http://127.0.0.1:5000/expense/${userData.id}/expenses/${id}`;
+      const url = `${import.meta.env.VITE_API_URL}/expense/${
+        userData.id
+      }/expenses/${id}`;
       const response = await AuthService.fetchWithAuth(url, {
         method: "DELETE",
       });

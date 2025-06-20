@@ -33,8 +33,10 @@ const CategoryForm = ({ existingCategory = {}, updateCallback }) => {
     };
 
     const url = updating
-      ? `http://127.0.0.1:5000/category/${userId}/categories/${existingCategory.id}`
-      : `http://127.0.0.1:5000/category/${userId}/categories`;
+      ? `${import.meta.env.VITE_API_URL}/category/${userId}/categories/${
+          existingCategory.id
+        }`
+      : `${import.meta.env.VITE_API_URL}/category/${userId}/categories`;
 
     try {
       const response = await AuthService.fetchWithAuth(url, {
@@ -49,7 +51,7 @@ const CategoryForm = ({ existingCategory = {}, updateCallback }) => {
         }
         // Fetch updated categories list
         const categoriesResponse = await AuthService.fetchWithAuth(
-          `http://127.0.0.1:5000/category/${userId}/categories`
+          `${import.meta.env.VITE_API_URL}/category/${userId}/categories`
         );
 
         if (categoriesResponse.ok) {

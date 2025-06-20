@@ -23,7 +23,7 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
 
   const fetchCategories = async (id) => {
     try {
-      const url = `http://127.0.1:5000/category/${id}/categories`;
+      const url = `${import.meta.env.VITE_API_URL}/category/${id}/categories`;
       const response = await AuthService.fetchWithAuth(url);
 
       if (response.ok) {
@@ -81,8 +81,10 @@ const ExpenseForm = ({ existingExpense = {}, updateCallback }) => {
     };
 
     const url = updating
-      ? `http://127.0.0.1:5000/expense/${userId}/expenses/${existingExpense.id}`
-      : `http://127.0.0.1:5000/expense/${userId}/expenses`;
+      ? `${import.meta.env.VITE_API_URL}/expense/${userId}/expenses/${
+          existingExpense.id
+        }`
+      : `${import.meta.env.VITE_API_URL}/expense/${userId}/expenses`;
 
     try {
       const response = await AuthService.fetchWithAuth(url, {

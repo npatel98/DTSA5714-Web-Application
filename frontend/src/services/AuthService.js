@@ -1,6 +1,6 @@
 class AuthService {
   static async login(username, password) {
-    const response = await fetch("http://127.0.0.1:5000/auth/login", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -20,13 +20,16 @@ class AuthService {
   }
 
   static async register(username, password) {
-    const response = await fetch("http://127.0.0.1:5000/auth/register", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username, password }),
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/auth/register`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      }
+    );
 
     if (!response.ok) {
       throw new Error("Registration failed");
@@ -42,13 +45,16 @@ class AuthService {
         throw new Error("No refresh token available");
       }
 
-      const response = await fetch("http://127.0.0.1:5000/auth/refresh", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${refreshToken}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${import.meta.env.VITE_API_URL}/auth/refresh`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${refreshToken}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Token refresh failed");
