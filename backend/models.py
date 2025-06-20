@@ -19,7 +19,7 @@ class User(db.Model):
 
 class Category(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     category = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.now(tz=UTC), nullable=False)
     updated_at = db.Column(db.DateTime, default=datetime.now(tz=UTC), onupdate=datetime.now(tz=UTC), nullable=False)
@@ -39,7 +39,7 @@ class Category(db.Model):
     
 class Expense(db.Model):
     id = db.Column(db.String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    user_id = db.Column(db.String(36), db.ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     date = db.Column(db.Date, nullable=False)
     category_id = db.Column(db.String, db.ForeignKey('category.id', ondelete='RESTRICT'), nullable=False)
     amount = db.Column(db.Numeric(10, 2), nullable=False)
