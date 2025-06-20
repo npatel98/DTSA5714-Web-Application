@@ -31,6 +31,7 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
+          envs: FLASK_CONFIG, FLASK_APP, DATABASE_URL, JWT_SECRET_KEY, VITE_API_URL
           script: |
             echo "Starting deployment..."
 
