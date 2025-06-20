@@ -29,7 +29,7 @@ def upgrade():
     )
     op.create_table('category',
     sa.Column('id', sa.String(length=36), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.String(length=36), nullable=False),
     sa.Column('category', sa.String(length=100), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
@@ -39,7 +39,7 @@ def upgrade():
     )
     op.create_table('expense',
     sa.Column('id', sa.String(length=36), nullable=False),
-    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.String(length=36), nullable=False),
     sa.Column('date', sa.Date(), nullable=False),
     sa.Column('category_id', sa.String(), nullable=False),
     sa.Column('amount', sa.Numeric(precision=10, scale=2), nullable=False),
