@@ -120,11 +120,18 @@ jobs:
             Environment="FLASK_CONFIG=${FLASK_CONFIG}"
             Environment="DATABASE_URL=${DATABASE_URL}"
             Environment="JWT_SECRET_KEY=${JWT_SECRET_KEY}"
-            ExecStart=/home/ubuntu/app/backend/venv/bin/gunicorn -w 4 -b 127.0.0.1:5000 app:app
+            ExecStart=/home/ubuntu/app/backend/venv/bin/gunicorn -w 4 -b 127.0.0.1:5000 app:app --log-level debug
+            StandardOutput=append:/var/log/expense-tracker.log
+            StandardError=append:/var/log/expense-tracker.error.log
+            Restart=always
 
             [Install]
             WantedBy=multi-user.target
             EOF
+
+            # Create log files and set permissions
+            sudo touch /var/log/expense-tracker.log /var/log/expense-tracker.error.log
+            sudo chown ubuntu:ubuntu /var/log/expense-tracker.log /var/log/expense-tracker.error.log
 
             # Reload systemd and restart service
             sudo systemctl daemon-reload
