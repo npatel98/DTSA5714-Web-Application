@@ -84,10 +84,6 @@ jobs:
             fi
             echo "Frontend build completed successfully"
 
-            # Get EC2 public hostname dynamically
-            EC2_HOSTNAME=$(curl -s http://169.254.169.254/latest/meta-data/public-hostname)
-            echo "Using EC2 hostname: $EC2_HOSTNAME"
-
             # Configure nginx (remove duplicates)
             echo "Configuring nginx..."
             sudo tee /etc/nginx/sites-available/expense-tracker << EOF
@@ -97,8 +93,7 @@ jobs:
                 
                 root /home/ubuntu/app/frontend/dist;
                 index index.html;
-                
-                server_name ${EC2_HOSTNAME};
+              
 
                 # Security headers
                 add_header X-Frame-Options "SAMEORIGIN" always;
