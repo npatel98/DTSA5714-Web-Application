@@ -88,9 +88,7 @@ jobs:
             echo "Configuring nginx..."
             sudo tee /etc/nginx/sites-available/expense-tracker << EOF
             server {
-                listen 80;
-                listen [::]:80;
-                
+                listen 80 default_server;
                 root /home/ubuntu/app/frontend/dist;
                 index index.html;
               
