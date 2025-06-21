@@ -49,7 +49,7 @@ function App() {
         throw new Error("User not authenticated");
       }
       const response = await AuthService.fetchWithAuth(
-        `http://127.0.0.1:5000/category/${userData.id}/categories`
+        `${import.meta.env.VITE_API_URL}/category/${userData.id}/categories`
       );
       if (response.ok) {
         const data = await response.json();
@@ -69,7 +69,7 @@ function App() {
         throw new Error("User not authenticated");
       }
       const response = await AuthService.fetchWithAuth(
-        `http://127.0.0.1:5000/expense/${userData.id}/expenses`
+        `${import.meta.env.VITE_API_URL}/expense/${userData.id}/expenses`
       );
       if (response.ok) {
         const data = await response.json();
