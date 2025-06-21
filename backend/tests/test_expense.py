@@ -40,7 +40,7 @@ class ExpenseTestCase(unittest.TestCase):
 
     def test_get_expenses_empty(self):
         response = self.client.get(
-            f"/expense/{self.user_id}/expenses",
+            f"/api/expense/{self.user_id}/expenses",
             headers=self.headers
         )
 
@@ -68,7 +68,7 @@ class ExpenseTestCase(unittest.TestCase):
             db.session.commit()
 
         response = self.client.get(
-            f"/expense/{self.user_id}/expenses",
+            f"/api/expense/{self.user_id}/expenses",
             headers=self.headers
         )
         self.assertEqual(response.status_code, 200)
@@ -91,7 +91,7 @@ class ExpenseTestCase(unittest.TestCase):
             "description": "Lunch",
         }
         response = self.client.post(
-            f"/expense/{self.user_id}/expenses", 
+            f"/api/expense/{self.user_id}/expenses", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -107,7 +107,7 @@ class ExpenseTestCase(unittest.TestCase):
             "description": "Lunch"
         }
         response = self.client.post(
-            f"/expense/{self.user_id}/expenses", 
+            f"/api/expense/{self.user_id}/expenses", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -121,7 +121,7 @@ class ExpenseTestCase(unittest.TestCase):
             "Description": "Lunch"
         }
         response = self.client.post(
-            f"/expense/{self.user_id}/expenses", 
+            f"/api/expense/{self.user_id}/expenses", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -135,7 +135,7 @@ class ExpenseTestCase(unittest.TestCase):
             "description": "Lunch"
         }
         response = self.client.post(
-            f"/expense/{self.user_id}/expenses", 
+            f"/api/expense/{self.user_id}/expenses", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -149,7 +149,7 @@ class ExpenseTestCase(unittest.TestCase):
             "description": "Lunch"
         }
         response = self.client.post(
-            f"/expense/{self.user_id}/expenses", 
+            f"/api/expense/{self.user_id}/expenses", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -163,7 +163,7 @@ class ExpenseTestCase(unittest.TestCase):
             "amount": 20.5,
         }
         response = self.client.post(
-            f"/expense/{self.user_id}/expenses", 
+            f"/api/expense/{self.user_id}/expenses", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -187,7 +187,7 @@ class ExpenseTestCase(unittest.TestCase):
 
         payload = {"date": "2025-04-03"}
         response = self.client.patch(
-            f"/expense/{self.user_id}/expenses/{expense_id}", 
+            f"/api/expense/{self.user_id}/expenses/{expense_id}", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -221,7 +221,7 @@ class ExpenseTestCase(unittest.TestCase):
 
         payload = {"date": 1}
         response = self.client.patch(
-            f"/expense/{self.user_id}/expenses/{expense_id}", 
+            f"/api/expense/{self.user_id}/expenses/{expense_id}", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -260,7 +260,7 @@ class ExpenseTestCase(unittest.TestCase):
         payload = {"categoryId": new_category_id}
         print(payload)
         response = self.client.patch(
-            f"/expense/{self.user_id}/expenses/{expense_id}", 
+            f"/api/expense/{self.user_id}/expenses/{expense_id}", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -299,7 +299,7 @@ class ExpenseTestCase(unittest.TestCase):
 
         payload = {"categoryId": non_existent_category_id}
         response = self.client.patch(
-            f"/expense/{self.user_id}/expenses/{expense_id}", 
+            f"/api/expense/{self.user_id}/expenses/{expense_id}", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -329,7 +329,7 @@ class ExpenseTestCase(unittest.TestCase):
             
         payload = {"amount": 100.82}
         response = self.client.patch(
-            f"/expense/{self.user_id}/expenses/{expense_id}", 
+            f"/api/expense/{self.user_id}/expenses/{expense_id}", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -362,7 +362,7 @@ class ExpenseTestCase(unittest.TestCase):
             
         payload = {"amount": "invalid_amount"}
         response = self.client.patch(
-            f"/expense/{self.user_id}/expenses/{expense_id}", 
+            f"/api/expense/{self.user_id}/expenses/{expense_id}", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -391,7 +391,7 @@ class ExpenseTestCase(unittest.TestCase):
 
         payload = {"description": "Dinner"}
         response = self.client.patch(
-            f"/expense/{self.user_id}/expenses/{expense_id}", 
+            f"/api/expense/{self.user_id}/expenses/{expense_id}", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -424,7 +424,7 @@ class ExpenseTestCase(unittest.TestCase):
 
         payload = {"description": None}
         response = self.client.patch(
-            f"/expense/{self.user_id}/expenses/{expense_id}", 
+            f"/api/expense/{self.user_id}/expenses/{expense_id}", 
             data=json.dumps(payload), 
             headers=self.headers
         )
@@ -452,7 +452,7 @@ class ExpenseTestCase(unittest.TestCase):
             expense_id = expense.id
 
         response = self.client.delete(
-            f"/expense/{self.user_id}/expenses/{expense_id}",
+            f"/api/expense/{self.user_id}/expenses/{expense_id}",
             headers=self.headers
         )
         self.assertEqual(response.status_code, 200)

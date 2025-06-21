@@ -51,9 +51,9 @@ def create_app(config_name=None):
     from routes.expense import expense_blueprint
     from routes.category import category_blueprint
     from routes.auth import auth_blueprint
-    app.register_blueprint(expense_blueprint, url_prefix="/expense")
-    app.register_blueprint(category_blueprint, url_prefix="/category")
-    app.register_blueprint(auth_blueprint, url_prefix="/auth")
+    app.register_blueprint(expense_blueprint, url_prefix="/api/expense")
+    app.register_blueprint(category_blueprint, url_prefix="/api/category")
+    app.register_blueprint(auth_blueprint, url_prefix="/api/auth")
 
     return app
 

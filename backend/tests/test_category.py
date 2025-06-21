@@ -40,7 +40,7 @@ class CategoryTestCase(unittest.TestCase):
 
     def test_get_categories_empty(self):
         response = self.client.get(
-            f"/category/{self.user_id}/categories",
+            f"api/category/{self.user_id}/categories",
             headers=self.headers
         )
 
@@ -52,7 +52,7 @@ class CategoryTestCase(unittest.TestCase):
             "Category": "Dining"
         }
         response = self.client.post(
-            f"/category/{self.user_id}/categories",
+            f"api/category/{self.user_id}/categories",
             data=json.dumps(payload),
             headers=self.headers
         )
@@ -73,7 +73,7 @@ class CategoryTestCase(unittest.TestCase):
 
         payload = {"Category": "Restaurants"}
         response = self.client.patch(
-            f"/category/{self.user_id}/categories/{category_id}",
+            f"api/category/{self.user_id}/categories/{category_id}",
             data=json.dumps(payload),
             headers=self.headers
         )
@@ -97,7 +97,7 @@ class CategoryTestCase(unittest.TestCase):
             category_id = category.id
 
             response = self.client.delete(
-                f"/category/{self.user_id}/categories/{category_id}",
+                f"api/category/{self.user_id}/categories/{category_id}",
                 headers=self.headers
             )
             self.assertEqual(response.status_code, 200)
@@ -121,7 +121,7 @@ class CategoryTestCase(unittest.TestCase):
             }
             
             response = self.client.get(
-                f"/category/{self.user_id}/categories",
+                f"api/category/{self.user_id}/categories",
                 headers=user_2_headers
             )
             self.assertEqual(response.status_code, 403)
@@ -129,7 +129,6 @@ class CategoryTestCase(unittest.TestCase):
 
     def test_different_users_same_category(self):
         with self.app.app_context():
-            # Create second test user
             second_user = User(
                 username="test_user_2",
                 password="test123"
@@ -138,35 +137,30 @@ class CategoryTestCase(unittest.TestCase):
             db.session.commit()
             db.session.refresh(second_user)
             
-            # Create access token for second user
             user_2_access_token = create_access_token(identity=second_user.id)
             user_2_headers = {
                 "Authorization": f"Bearer {user_2_access_token}",
                 "Content-Type": "application/json"
             }
 
-            # Create same category name for both users
             payload = {
                 "Category": "Groceries"
             }
 
-            # Create category for first user
             response1 = self.client.post(
-                f"/category/{self.user_id}/categories",
+                f"api/category/{self.user_id}/categories",
                 data=json.dumps(payload),
                 headers=self.headers
             )
             self.assertEqual(response1.status_code, 201)
 
-            # Create same category for second user
             response2 = self.client.post(
-                f"/category/{second_user.id}/categories",
+                f"api/category/{second_user.id}/categories",
                 data=json.dumps(payload),
                 headers=user_2_headers
             )
             self.assertEqual(response2.status_code, 201)
 
-            # Verify both categories exist in database
             user1_category = Category.query.filter_by(user_id=self.user_id, category="Groceries").first()
             user2_category = Category.query.filter_by(user_id=second_user.id, category="Groceries").first()
             

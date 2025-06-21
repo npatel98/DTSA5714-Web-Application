@@ -31,7 +31,7 @@ class AuthTestCase(unittest.TestCase):
             "password": "newpassword"
         }
         response = self.client.post(
-            "/auth/register", data=json.dumps(payload), content_type="application/json"
+            "api/auth/register", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 201)
         self.assertIn("User registered successfully", response.json["message"])
@@ -49,7 +49,7 @@ class AuthTestCase(unittest.TestCase):
             "password": "testpassword"
         }
         response = self.client.post(
-            "/auth/login", data=json.dumps(payload), content_type="application/json"
+            "api/auth/login", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 200)
         self.assertIn("access_token", response.json)
@@ -70,7 +70,7 @@ class AuthTestCase(unittest.TestCase):
             "password": "testpassword"
         }
         response = self.client.post(
-            "/auth/login", data=json.dumps(payload), content_type="application/json"
+            "api/auth/login", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 401)
         self.assertIn("Invalid credentials", response.json["message"])
@@ -88,7 +88,7 @@ class AuthTestCase(unittest.TestCase):
             "password": "wrongpassword"
         }
         response = self.client.post(
-            "/auth/login", data=json.dumps(payload), content_type="application/json"
+            "api/auth/login", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 401)
         self.assertIn("Invalid credentials", response.json["message"])
@@ -105,7 +105,7 @@ class AuthTestCase(unittest.TestCase):
             "username": "testuser"
         }
         response = self.client.post(
-            "/auth/logout", data=json.dumps(payload), content_type="application/json"
+            "api/auth/logout", data=json.dumps(payload), content_type="application/json"
         )
         self.assertEqual(response.status_code, 200)
         self.assertIn("Logout successful", response.json["message"])
@@ -122,14 +122,14 @@ class AuthTestCase(unittest.TestCase):
             "password": "testpassword"
         }
         login_response = self.client.post(
-            "/auth/login", data=json.dumps(payload), content_type="application/json"
+            "api/auth/login", data=json.dumps(payload), content_type="application/json"
         )
         refresh_token = login_response.json["refresh_token"]
 
         headers = {
             "Authorization": f"Bearer {refresh_token}"
         }
-        refresh_response = self.client.post("/auth/refresh", headers=headers)
+        refresh_response = self.client.post("api/auth/refresh", headers=headers)
         
         self.assertEqual(refresh_response.status_code, 200)
         self.assertNotEqual(login_response.json["access_token"], refresh_response.json["access_token"])
