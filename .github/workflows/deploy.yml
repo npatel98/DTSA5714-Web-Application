@@ -98,7 +98,7 @@ jobs:
                 root /home/ubuntu/app/frontend/dist;
                 index index.html;
                 
-                server_name $EC2_HOSTNAME;
+                server_name ${EC2_HOSTNAME};
 
                 # Security headers
                 add_header X-Frame-Options "SAMEORIGIN" always;
